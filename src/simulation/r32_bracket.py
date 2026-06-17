@@ -1,18 +1,29 @@
 """
-WC2026 Round of 32 bracket mapping — the official FIFA lookup table for
-how group positions map to knockout fixtures.
+WC2026 Round of 32 bracket — fixed matches verified against Wikipedia's
+official bracket diagram (sourced from FIFA's Annex C regulations), plus
+a documented simplified rule for the 8 third-place-team slots.
 
-WHY THIS IS HARD: 8 of the 32 Round of 32 slots are filled by "best
-third-place teams", and WHICH third-place teams qualify depends on actual
-group results (not known until group stage ends). FIFA pre-published which
-GROUP COMBINATIONS map to which bracket slot, e.g. "Group E winner plays
-the third-place team from whichever of groups A/B/C/D/F finished 3rd
-(if that group's 3rd-placer is among the best 8)". If group E's own
-3rd-placer is one of the best 8, a substitution rule kicks in (handled
-in the simulator, not here) since a team can't play itself.
+ACCURACY NOTE: the 8 fixed group-winner/runner-up slots below (e.g. "A2 vs
+B2") are taken directly from FIFA's published bracket structure and are
+NOT subject to the third-place complexity — these are exactly correct
+regardless of which third-place teams qualify.
 
-This file encodes the structure exactly as published; the simulator
-resolves the "which actual team" question after group stage simulation.
+The 8 slots involving a "best third-place team" use a SIMPLIFIED
+assignment rule rather than FIFA's official 495-combination Annex C table.
+Reason: Annex C's raw column encoding could not be reliably parsed with
+confidence from available sources without risking a silently incorrect
+mapping. A wrong simplified rule, clearly labeled as such, is safer and
+more honest than a wrong "official" table presented as authoritative.
+
+SIMPLIFIED RULE USED: each of the 8 fixed group-winner slots that requires
+a third-place opponent (E, I, A, L, G, D, B, K — see FIXED_R32_MATCHES) is
+matched against the BEST-RANKED remaining qualifying third-place team that
+is NOT from that same group (group winners never face their own group's
+3rd-placer, consistent with FIFA's stated opponent-separation principle).
+Assignment proceeds in bracket-slot order, consuming the best available
+qualifier each time. This preserves the principle (no immediate group
+rematches, toughest 3rd-place teams matched against winners) without
+claiming exact official accuracy.
 """
 
 from __future__ import annotations
@@ -22,38 +33,81 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class R32Fixture:
     slot: int
-    description: str          # human-readable, matches the published bracket
-    home_rule: str             # e.g. "A2" (runner-up of A), "C1" (winner of C), "ABCDF3" (3rd place from one of these groups)
+    description: str
+    home_rule: str   # "X1" = winner of group X, "X2" = runner-up of group X, "THIRD" = resolved dynamically
     away_rule: str
 
 
-# Reading the rules: "X1" = winner of group X, "X2" = runner-up of group X,
-# "XYZ3" = the qualifying 3rd-place team from group X, Y, or Z (whichever
-# of those actually produced one of the 8 best 3rd-place teams).
-R32_BRACKET: list[R32Fixture] = [
-    R32Fixture(1, "Group A runners-up vs Group B runners-up", "A2", "B2"),
-    R32Fixture(2, "Group C winners vs Group F runners-up", "C1", "F2"),
-    R32Fixture(3, "Group E winners vs ABCDF 3rd place", "E1", "ABCDF3"),
-    R32Fixture(4, "Group F winners vs Group C runners-up", "F1", "C2"),
-    R32Fixture(5, "Group E runners-up vs Group I runners-up", "E2", "I2"),
-    R32Fixture(6, "Group I winners vs CDFGH 3rd place", "I1", "CDFGH3"),
-    R32Fixture(7, "Group A winners vs CEFHI 3rd place", "A1", "CEFHI3"),
-    R32Fixture(8, "Group L winners vs EHIJK 3rd place", "L1", "EHIJK3"),
-    R32Fixture(9, "Group G winners vs AEHIJ 3rd place", "G1", "AEHIJ3"),
-    R32Fixture(10, "Group D winners vs BEFIJ 3rd place", "D1", "BEFIJ3"),
-    R32Fixture(11, "Group H winners vs Group J runners-up", "H1", "J2"),
-    R32Fixture(12, "Group K runners-up vs Group L runners-up", "K2", "L2"),
-    R32Fixture(13, "Group B winners vs EFGIJ 3rd place", "B1", "EFGIJ3"),
-    R32Fixture(14, "Group D runners-up vs Group G runners-up", "D2", "G2"),
-    R32Fixture(15, "Group J winners vs Group H runners-up", "J1", "H2"),
-    R32Fixture(16, "Group K winners vs DEIJL 3rd place", "K1", "DEIJL3"),
+# Matches with NO third-place involvement — taken directly from the
+# official bracket diagram, 100% fixed regardless of which 3rd-placers qualify.
+FIXED_R32_MATCHES: list[R32Fixture] = [
+    R32Fixture(73, "Runner-up A vs Runner-up B", "A2", "B2"),
+    R32Fixture(75, "Winner F vs Runner-up C", "F1", "C2"),
+    R32Fixture(76, "Winner C vs Runner-up F", "C1", "F2"),
+    R32Fixture(78, "Runner-up E vs Runner-up I", "E2", "I2"),
+    R32Fixture(83, "Runner-up K vs Runner-up L", "K2", "L2"),
+    R32Fixture(84, "Winner H vs Runner-up J", "H1", "J2"),
+    R32Fixture(86, "Winner J vs Runner-up H", "J1", "H2"),
+    R32Fixture(88, "Runner-up D vs Runner-up G", "D2", "G2"),
 ]
+
+# Matches requiring a third-place team — group winner is fixed, opponent
+# resolved via the simplified rule documented above.
+THIRD_PLACE_R32_MATCHES: list[R32Fixture] = [
+    R32Fixture(74, "Winner E vs Best 3rd place", "E1", "THIRD"),
+    R32Fixture(77, "Winner I vs Best 3rd place", "I1", "THIRD"),
+    R32Fixture(79, "Winner A vs Best 3rd place", "A1", "THIRD"),
+    R32Fixture(80, "Winner L vs Best 3rd place", "L1", "THIRD"),
+    R32Fixture(81, "Winner D vs Best 3rd place", "D1", "THIRD"),
+    R32Fixture(82, "Winner G vs Best 3rd place", "G1", "THIRD"),
+    R32Fixture(85, "Winner B vs Best 3rd place", "B1", "THIRD"),
+    R32Fixture(87, "Winner K vs Best 3rd place", "K1", "THIRD"),
+]
+
+R32_BRACKET: list[R32Fixture] = FIXED_R32_MATCHES + THIRD_PLACE_R32_MATCHES
+
+
+def assign_third_place_opponents(
+    qualifying_thirds: list[tuple[str, str]],  # [(group_letter, team_name), ...], best-ranked first
+) -> dict[int, str]:
+    """
+    Simplified assignment: for each third-place slot (in bracket-slot
+    order), assign the best-ranked remaining qualifier whose group does
+    NOT match the facing group winner's letter (no immediate rematch).
+    Returns {slot_number: team_name}.
+    """
+    remaining = list(qualifying_thirds)  # (group, team), best-ranked first
+    assignment: dict[int, str] = {}
+
+    for fixture in THIRD_PLACE_R32_MATCHES:
+        winner_group = fixture.home_rule[0]  # e.g. "E1" -> "E"
+        # Find the best-ranked remaining qualifier NOT from winner_group
+        chosen_idx = None
+        for i, (q_group, _team) in enumerate(remaining):
+            if q_group != winner_group:
+                chosen_idx = i
+                break
+        if chosen_idx is None:
+            # Extremely rare edge case: only remaining qualifier IS from
+            # winner_group. Fall back to allowing it (better than crashing;
+            # document as a known edge case).
+            chosen_idx = 0
+
+        group, team = remaining.pop(chosen_idx)
+        assignment[fixture.slot] = team
+
+    return assignment
 
 
 def print_summary() -> None:
-    print(f"[bracket] {len(R32_BRACKET)} Round of 32 fixtures defined")
-    for fx in R32_BRACKET:
-        print(f"  Slot {fx.slot:2d}: {fx.description}")
+    print(f"[bracket] {len(FIXED_R32_MATCHES)} fixed matches, "
+          f"{len(THIRD_PLACE_R32_MATCHES)} third-place-dependent matches")
+    print("\nFixed matches:")
+    for fx in FIXED_R32_MATCHES:
+        print(f"  Match {fx.slot}: {fx.description}")
+    print("\nThird-place-dependent matches (opponent resolved at simulation time):")
+    for fx in THIRD_PLACE_R32_MATCHES:
+        print(f"  Match {fx.slot}: {fx.description}")
 
 
 if __name__ == "__main__":

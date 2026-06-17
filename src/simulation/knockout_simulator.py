@@ -65,31 +65,30 @@ def simulate_knockout_bracket(
     frozen_features: dict[str, dict],
     rng: np.random.Generator,
 ) -> dict[str, list[str]]:
-    """
-    Simulates R32 through Final. Returns {round_name: [winners]} for
-    tracing the whole bracket path, plus the champion at the end.
-    """
-    # Sort by slot number to keep bracket order consistent
     current_round = [(a, b) for a, b, _slot in sorted(r32_matchups, key=lambda m: m[2])]
     round_names = ["R32", "R16", "QF", "SF", "Final"]
     results: dict[str, list[str]] = {}
 
     for round_name in round_names:
+        # Capture PARTICIPANTS (both teams in every match this round) BEFORE
+        # resolving winners. "Participated in QF" != "won QF" — these are
+        # genuinely different facts and both matter for reporting.
+        participants = [team for pair in current_round for team in pair]
+        results[f"{round_name}_participants"] = participants
+
         winners = []
         for team_a, team_b in current_round:
             winner = simulate_knockout_match(team_a, team_b, elo_state, frozen_features, rng)
             winners.append(winner)
-        results[round_name] = winners
+        results[round_name] = winners  # winners of this round
 
-        # Pair up winners for the next round (1v2, 3v4, 5v6, ...)
         current_round = [
             (winners[i], winners[i + 1]) for i in range(0, len(winners) - 1, 2)
         ]
         if len(winners) == 1:
-            break  # Final has been played, winners[0] is champion
+            break
 
     return results
-
 
 if __name__ == "__main__":
     from src.simulation.tournament_simulator import (

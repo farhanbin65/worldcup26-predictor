@@ -80,7 +80,6 @@ def train_logistic_regression(train: pd.DataFrame, test: pd.DataFrame) -> None:
     X_test_scaled = scaler.transform(X_test)  # fit on train ONLY, transform test
 
     model = LogisticRegression(
-        multi_class="multinomial",  # proper 3-class softmax, not one-vs-rest
         max_iter=1000,
         random_state=42,
     )

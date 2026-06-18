@@ -10,6 +10,8 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.routers import fixtures
+
 app = FastAPI(
     title="World Cup 2026 Predictor API",
     description="ML-powered match predictions, group standings, and tournament simulation for WC2026",
@@ -25,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(fixtures.router)
 
 
 @app.get("/")

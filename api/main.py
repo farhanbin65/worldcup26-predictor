@@ -9,7 +9,7 @@ slow and wasteful. FastAPI's lifespan/startup event handles this.
 from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import fixtures, standings, predict
+from api.routers import fixtures, standings, predict, tournament
 
 
 app = FastAPI(
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(fixtures.router)
 app.include_router(standings.router)
 app.include_router(predict.router)
+app.include_router(tournament.router)
 
 
 @app.get("/")

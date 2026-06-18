@@ -1,26 +1,131 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0d1a14;
+  --surface: #0a1510;
+  --surface-hover: #0f2018;
+  --border: #1a3025;
+  --text: #e8ede9;
+  --text-dim: #7aab8a;
+  --text-muted: #4d7a5c;
+  --text-faint: #3d5e49;
+  --accent: #00c97a;
+  --accent-dim: #1a5c35;
+  --loss: #c0634a;
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  min-height: 100vh;
+  margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,201,122,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,201,122,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+body > * { position: relative; z-index: 1; }
+
+.wc-nav-link {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+.wc-nav-link:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.champion-card {
+  border: 1px solid var(--accent-dim);
+  border-radius: 12px;
+  background: rgba(0,201,122,0.04);
+  padding: 20px 24px;
+  margin-bottom: 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-decoration: none;
+}
+
+.champion-card:hover {
+  border-color: var(--accent);
+  background: rgba(0,201,122,0.09);
+}
+
+.fixture-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  transition: background 0.12s;
+  gap: 12px;
+}
+.fixture-row:hover { background: var(--surface); }
+.fixture-row:last-child { border-bottom: none; }
+
+.bracket-match {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+  width: 160px;
+  transition: border-color 0.15s;
+}
+.bracket-match:hover { border-color: var(--accent-dim); }
+
+.bracket-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.bracket-team:last-child { border-bottom: none; }
+.bracket-team.winner {
+  color: var(--text);
+  background: rgba(0,201,122,0.06);
+}
+.bracket-team.tbd { color: var(--text-faint); font-style: italic; }
+
+.bracket-seed {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.bracket-date {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--border);
 }

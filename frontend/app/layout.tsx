@@ -69,6 +69,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             border-color: var(--accent);
             background: rgba(0,201,122,0.09);
           }
+          .footer-link {
+          font-family: var(--font-mono), monospace;
+          font-size: 11px;
+          color: var(--text-muted);
+          text-decoration: none;
+          transition: color 0.15s;
+        }
+        .footer-link:hover { color: var(--accent); }
         `}</style>
 
         <header style={{

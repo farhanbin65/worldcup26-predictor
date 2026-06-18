@@ -275,6 +275,33 @@ export default async function Home() {
           </section>
         </>
       )}
+      {/* Footer */}
+      <footer style={{
+        marginTop: "80px",
+        paddingTop: "24px",
+        borderTop: "1px solid var(--border)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: "8px",
+      }}>
+        <span style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "11px",
+          color: "var(--text-faint)",
+        }}>
+          WC2026 Predictor · 10,000 Monte Carlo simulations · Logistic regression model
+        </span>
+        <a
+          href="https://farhanbin.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-link"
+        >
+          Built by Farhan · farhanbin.dev
+        </a>
+      </footer>
     </main>
   );
 }

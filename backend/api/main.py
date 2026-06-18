@@ -9,7 +9,8 @@ slow and wasteful. FastAPI's lifespan/startup event handles this.
 from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import fixtures, standings, predict, tournament
+from api.routers import tournament
+from api.routers import fixtures, predict, standings
 
 
 app = FastAPI(

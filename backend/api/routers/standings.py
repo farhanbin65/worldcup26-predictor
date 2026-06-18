@@ -10,9 +10,9 @@ here, just exposing it over HTTP.
 from __future__ import annotations
 from fastapi import APIRouter
 
-from backend.src.simulation.tournament_structure import GROUPS
-from backend.src.simulation.results_so_far import RESULTS_SO_FAR
-from backend.src.simulation.group_standings import compute_group_table
+from src.simulation.tournament_structure import GROUPS
+from src.simulation.results_so_far import RESULTS_SO_FAR
+from src.simulation.group_standings import compute_group_table
 
 router = APIRouter(prefix="/standings", tags=["standings"])
 

@@ -10,9 +10,9 @@ up first.
 from __future__ import annotations
 from fastapi import APIRouter
 
-from backend.src.simulation.tournament_structure import GROUPS
-from backend.src.simulation.results_so_far import RESULTS_SO_FAR
-from backend.src.simulation.remaining_fixtures import REMAINING_FIXTURES
+from src.simulation.tournament_structure import GROUPS
+from src.simulation.results_so_far import RESULTS_SO_FAR
+from src.simulation.remaining_fixtures import REMAINING_FIXTURES
 
 router = APIRouter(prefix="/fixtures", tags=["fixtures"])
 

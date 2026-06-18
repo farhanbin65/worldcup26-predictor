@@ -19,8 +19,8 @@ from pydantic import BaseModel
 import joblib
 from pathlib import Path
 
-from src.simulation.tournament_structure import GROUPS, to_dataset_name
-from src.simulation.tournament_simulator import load_frozen_features, load_starting_ratings
+from backend.src.simulation.tournament_structure import GROUPS, to_dataset_name
+from backend.src.simulation.tournament_simulator import load_frozen_features, load_starting_ratings
 
 router = APIRouter(prefix="/predict", tags=["predict"])
 

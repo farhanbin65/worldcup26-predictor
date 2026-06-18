@@ -51,6 +51,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }
           .fixture-row:hover { background: var(--surface); }
           .fixture-row:last-child { border-bottom: none; }
+          .champion-card {
+            border: 1px solid var(--accent-dim);
+            border-radius: 12px;
+            background: rgba(0,201,122,0.04);
+            padding: 20px 24px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            text-decoration: none;
+          }
+          .champion-card:hover {
+            border-color: var(--accent);
+            background: rgba(0,201,122,0.09);
+          }
         `}</style>
 
         <header style={{

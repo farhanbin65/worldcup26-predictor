@@ -13,8 +13,7 @@
 A full-stack FIFA World Cup 2026 prediction engine. Calibrated match outcome probabilities, live group standings, and a 10,000-run Monte Carlo tournament simulation served through a FastAPI backend and a Next.js frontend.
 
 **Live site:** https://worldcup26-prediction.vercel.app  
-**API:** https://worldcup26-predictor.onrender.com  
-**API docs:** https://worldcup26-predictor.onrender.com/docs
+
 
 > The API runs on Render's free tier and sleeps after 15 minutes of inactivity. The first request after sleep takes approximately 30 seconds. Visit the /docs endpoint to wake the instance before using the site.
 

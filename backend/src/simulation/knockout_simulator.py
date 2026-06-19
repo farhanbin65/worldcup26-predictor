@@ -12,9 +12,9 @@ group stage (per the "yes, both" decision).
 from __future__ import annotations
 import numpy as np
 
-from src.simulation.tournament_structure import to_dataset_name
-from src.simulation.match_simulator import simulate_match
-from src.simulation.elo_state import SimulationEloState
+from backend.src.simulation.tournament_structure import to_dataset_name
+from backend.src.simulation.match_simulator import simulate_match
+from backend.src.simulation.elo_state import SimulationEloState
 
 
 def simulate_knockout_match(
@@ -91,11 +91,11 @@ def simulate_knockout_bracket(
     return results
 
 if __name__ == "__main__":
-    from src.simulation.tournament_simulator import (
+    from backend.src.simulation.tournament_simulator import (
         simulate_group_stage, select_best_third_place,
         load_frozen_features, load_starting_ratings,
     )
-    from src.simulation.r32_resolver import resolve_r32_matchups
+    from backend.src.simulation.r32_resolver import resolve_r32_matchups
 
     rng = np.random.default_rng(seed=1)
     frozen_features = load_frozen_features()

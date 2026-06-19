@@ -14,12 +14,12 @@ what bracket position." That's verified separately before we add knockouts.
 from __future__ import annotations
 import numpy as np
 
-from src.simulation.tournament_structure import GROUPS, to_dataset_name
-from src.simulation.results_so_far import RESULTS_SO_FAR
-from src.simulation.remaining_fixtures import REMAINING_FIXTURES
-from src.simulation.group_standings import compute_group_table, TeamGroupStats
-from src.simulation.match_simulator import simulate_match
-from src.simulation.elo_state import SimulationEloState, load_starting_ratings
+from backend.src.simulation.tournament_structure import GROUPS, to_dataset_name
+from backend.src.simulation.results_so_far import RESULTS_SO_FAR
+from backend.src.simulation.remaining_fixtures import REMAINING_FIXTURES
+from backend.src.simulation.group_standings import compute_group_table, TeamGroupStats
+from backend.src.simulation.match_simulator import simulate_match
+from backend.src.simulation.elo_state import SimulationEloState, load_starting_ratings
 
 # Frozen features (form/rest/h2h) — real current values, NOT simulated
 # dynamically. We need a lookup of each team's current feature snapshot.

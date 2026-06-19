@@ -194,34 +194,22 @@ export default async function Home() {
             <div style={{ border: "1px solid var(--border)", borderRadius: "10px", overflow: "hidden" }}>
               {results.map((r, i) => (
                 <div key={i} className="fixture-row">
-                  {/* Date + group */}
-                  <span style={{
-                    fontFamily: "var(--font-mono)", fontSize: "10px",
-                    color: "var(--text-faint)", width: "120px", flexShrink: 0,
-                  }}>
-                    {r.date} · GRP {r.group}
-                  </span>
-
-                  {/* Home team: flag + name, right-aligned */}
-                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "7px" }}>
-                    <span style={{ fontSize: "13px", color: "var(--text-dim)", textAlign: "right" }}>{r.home}</span>
+                  <span className="fixture-meta">{r.date} · GRP {r.group}</span>
+                  <div className="fixture-home">
+                    <span>{r.home}</span>
                     <Flag team={r.home} size={18} />
                   </div>
-
-                  {/* Score pill */}
                   <span style={{
                     fontFamily: "var(--font-mono)", fontSize: "13px", fontWeight: 500,
                     color: "var(--text)", background: "var(--surface)",
                     border: "1px solid var(--border)", borderRadius: "8px",
-                    padding: "3px 12px", minWidth: "64px", textAlign: "center", flexShrink: 0,
+                    padding: "3px 10px", minWidth: "56px", textAlign: "center", flexShrink: 0,
                   }}>
                     {r.home_score} – {r.away_score}
                   </span>
-
-                  {/* Away team: flag + name, left-aligned */}
-                  <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "7px" }}>
+                  <div className="fixture-away">
                     <Flag team={r.away} size={18} />
-                    <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>{r.away}</span>
+                    <span>{r.away}</span>
                   </div>
                 </div>
               ))}

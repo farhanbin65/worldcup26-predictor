@@ -17,7 +17,7 @@ from __future__ import annotations
 import pandas as pd
 from pathlib import Path
 
-from src.data.elo import (
+from backend.src.data.elo import (
     expected_score,
     goal_diff_multiplier,
     tournament_weight,
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     # Austria's Elo rises and Jordan's falls by the same magnitude.
     starting = load_starting_ratings()
 
-    from src.simulation.tournament_structure import to_dataset_name
+    from backend.src.simulation.tournament_structure import to_dataset_name
     austria_key = to_dataset_name("Austria")
     jordan_key = to_dataset_name("Jordan")
 

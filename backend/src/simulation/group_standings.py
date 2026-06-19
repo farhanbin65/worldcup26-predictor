@@ -80,8 +80,8 @@ def print_table(group_letter: str, ranked: list[TeamGroupStats]) -> None:
 
 def main() -> None:
     """Sanity check: build tables using ONLY real results so far (partial)."""
-    from src.simulation.tournament_structure import GROUPS
-    from src.simulation.results_so_far import RESULTS_SO_FAR
+    from backend.src.simulation.tournament_structure import GROUPS
+    from backend.src.simulation.results_so_far import RESULTS_SO_FAR
 
     for group_letter, teams in GROUPS.items():
         group_matches = [

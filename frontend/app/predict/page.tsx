@@ -58,17 +58,17 @@ function TeamPicker({
   label: string; value: string; teams: string[]; onChange: (v: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", flex: 1 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", flex: 1, minWidth: 0 }}>
       <span style={{
         fontFamily: "var(--font-mono)", fontSize: "10px",
-        color: "var(--text-muted)", letterSpacing: "0.12em", textTransform: "uppercase",
+        color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase",
+        whiteSpace: "nowrap",
       }}>{label}</span>
 
-      {/* Big flag display */}
       <div style={{
-        width: "120px", height: "90px",
+        width: "100%", maxWidth: "120px", aspectRatio: "4/3",
         border: "1px solid var(--border)", borderRadius: "10px",
-        overflow: "hidden", background: "var(--surface)",
+        overflow: "hidden", background: "var(--bg)",
         display: "flex", alignItems: "center", justifyContent: "center",
         transition: "border-color 0.2s",
         borderColor: value ? "var(--accent-dim)" : "var(--border)",
@@ -80,33 +80,30 @@ function TeamPicker({
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         ) : (
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--text-faint)" }}>
-            ?
-          </span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--text-faint)" }}>?</span>
         )}
       </div>
 
-      {/* Team name */}
       <div style={{
-        fontFamily: "var(--font-mono)", fontSize: "14px",
+        fontFamily: "var(--font-mono)", fontSize: "13px",
         color: value ? "var(--text)" : "var(--text-faint)",
-        fontWeight: value ? 500 : 400, minHeight: "20px", textAlign: "center",
+        fontWeight: value ? 500 : 400, minHeight: "18px", textAlign: "center",
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        maxWidth: "100%",
       }}>
         {value || "—"}
       </div>
 
-      {/* Select */}
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
         style={{
-          background: "var(--surface)", border: "1px solid var(--border)",
-          color: "var(--text-dim)", fontSize: "12px", padding: "8px 12px",
-          borderRadius: "8px", width: "100%", maxWidth: "200px",
+          background: "var(--bg)", border: "1px solid var(--border)",
+          color: "var(--text-dim)", fontSize: "11px", padding: "7px 8px",
+          borderRadius: "8px", width: "100%", maxWidth: "150px",
           fontFamily: "var(--font-mono)", outline: "none", cursor: "pointer",
+          boxSizing: "border-box",
         }}
-        onFocus={e => (e.target.style.borderColor = "var(--accent)")}
-        onBlur={e => (e.target.style.borderColor = "var(--border)")}
       >
         <option value="">Select team</option>
         {teams.map(t => <option key={t} value={t}>{t}</option>)}
@@ -198,8 +195,7 @@ export default function PredictPage() {
   const winner = winnerTeam();
 
   return (
-    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "40px 24px" }}>
-
+    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "32px 16px" }}>
       <div style={{
         fontFamily: "var(--font-mono)", fontSize: "10px",
         color: "var(--text-muted)", letterSpacing: "0.1em",
@@ -209,16 +205,18 @@ export default function PredictPage() {
       </div>
 
       {/* Team picker: VS layout */}
-      <div style={{
+      <div className="predict-grid" style={{
         display: "grid",
         gridTemplateColumns: "1fr auto 1fr",
         gap: "0",
         alignItems: "center",
-        marginBottom: "32px",
+        marginBottom: "28px",
         background: "var(--surface)",
         border: "1px solid var(--border)",
         borderRadius: "16px",
-        padding: "28px 24px",
+        padding: "24px 16px",
+        width: "100%",
+        boxSizing: "border-box",
       }}>
         <TeamPicker label="Home team" value={homeTeam} teams={teams} onChange={v => { setHomeTeam(v); setResult(null); }} />
 
@@ -246,17 +244,17 @@ export default function PredictPage() {
 
       {/* Predict button */}
       <div style={{ display: "flex", justifyContent: "center", marginBottom: "32px" }}>
-        <button
+       <button
           onClick={handlePredict}
           disabled={loading || !homeTeam || !awayTeam}
           style={{
             background: loading ? "var(--accent-dim)" : "var(--accent)",
-            color: "#041a0e", fontWeight: 600, fontSize: "14px",
-            padding: "12px 40px", borderRadius: "40px", border: "none",
+            color: "#041a0e", fontWeight: 600, fontSize: "13px",
+            padding: "12px 32px", borderRadius: "40px", border: "none",
             cursor: loading ? "not-allowed" : "pointer",
-            fontFamily: "var(--font-mono)", letterSpacing: "0.06em",
+            fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
             textTransform: "uppercase", opacity: (!homeTeam || !awayTeam) ? 0.4 : 1,
-            transition: "all 0.2s", minWidth: "180px",
+            transition: "all 0.2s", width: "100%", maxWidth: "280px",
           }}
         >
           {loading ? "Predicting…" : "Run Prediction"}

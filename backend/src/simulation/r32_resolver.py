@@ -8,10 +8,10 @@ assign_third_place_opponents() -> a complete list of 16 R32 matchups.
 """
 
 from __future__ import annotations
-from backend.src.simulation.r32_bracket import (
+from src.simulation.r32_bracket import (
     FIXED_R32_MATCHES, THIRD_PLACE_R32_MATCHES, assign_third_place_opponents
 )
-from backend.src.simulation.group_standings import TeamGroupStats
+from src.simulation.group_standings import TeamGroupStats
 
 
 def resolve_r32_matchups(
@@ -54,11 +54,11 @@ def print_r32_matchups(matchups: list[tuple[str, str, int]]) -> None:
 
 if __name__ == "__main__":
     import numpy as np
-    from backend.src.simulation.tournament_simulator import (
+    from src.simulation.tournament_simulator import (
         simulate_group_stage, select_best_third_place,
         load_frozen_features, load_starting_ratings,
     )
-    from backend.src.simulation.elo_state import SimulationEloState
+    from src.simulation.elo_state import SimulationEloState
 
     rng = np.random.default_rng(seed=1)
     frozen_features = load_frozen_features()

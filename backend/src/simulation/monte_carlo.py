@@ -14,14 +14,14 @@ import json
 from pathlib import Path
 from collections import Counter, defaultdict
 
-from backend.src.simulation.tournament_simulator import (
+from src.simulation.tournament_simulator import (
     simulate_group_stage, select_best_third_place,
     load_frozen_features, load_starting_ratings,
 )
-from backend.src.simulation.elo_state import SimulationEloState
-from backend.src.simulation.r32_resolver import resolve_r32_matchups
-from backend.src.simulation.knockout_simulator import simulate_knockout_bracket
-from backend.src.simulation.tournament_structure import ALL_TEAMS
+from src.simulation.elo_state import SimulationEloState
+from src.simulation.r32_resolver import resolve_r32_matchups
+from src.simulation.knockout_simulator import simulate_knockout_bracket
+from src.simulation.tournament_structure import ALL_TEAMS
 
 OUTPUT_DIR = Path("data/processed")
 

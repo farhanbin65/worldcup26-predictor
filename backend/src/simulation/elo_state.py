@@ -91,7 +91,7 @@ if __name__ == "__main__":
     # Austria's Elo rises and Jordan's falls by the same magnitude.
     starting = load_starting_ratings()
 
-    from backend.src.simulation.tournament_structure import to_dataset_name
+    from src.simulation.tournament_structure import to_dataset_name
     austria_key = to_dataset_name("Austria")
     jordan_key = to_dataset_name("Jordan")
 

@@ -9,12 +9,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger sync on Render
-        run: |
-          curl -X POST \
-            "https://worldcup26-predictor.onrender.com/admin/sync?run_sim=true" \
-            -H "X-Sync-Secret: ${{ secrets.SYNC_SECRET }}" \
-            -H "Content-Type: application/json" \
-            --fail \
-            --silent \
-            --show-error
+    - name: Trigger sync on Render
+      run: |
+        curl -X POST \
+          "https://worldcup26-predictor.onrender.com/admin/sync?run_sim=true" \
+          -H "X-Sync-Secret: ${{ secrets.SYNC_SECRET }}" \
+          --fail --silent --show-error
+        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"

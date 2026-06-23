@@ -331,6 +331,13 @@ def main() -> None:
             print(result.stderr)
             sys.exit(1)
 
+    # 7. trigger Render redeploy so new data is picked up
+    deploy_hook = os.environ.get("RENDER_DEPLOY_HOOK")
+    if deploy_hook:
+        import urllib.request
+        urllib.request.urlopen(urllib.request.Request(deploy_hook, method="POST"))
+        print("[sync] Triggered Render redeploy.")
+
     print("[sync] Done.")
 
 

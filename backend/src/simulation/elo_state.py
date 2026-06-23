@@ -17,7 +17,7 @@ from __future__ import annotations
 import pandas as pd
 from pathlib import Path
 
-from backend.src.data.elo import (
+from src.data.elo import (
     expected_score,
     goal_diff_multiplier,
     tournament_weight,

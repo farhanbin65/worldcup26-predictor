@@ -21,7 +21,6 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
-os.chdir(Path(__file__).resolve().parent.parent.parent)
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -252,23 +251,27 @@ def main() -> None:
     write_file(merged)
 
     # 6. optionally re-run Monte Carlo
-    if args.run_sim:
-        sim_path = Path(__file__).parent / "monte_carlo.py"
-        print(f"[sync] Running Monte Carlo simulation...")
-        result = subprocess.run(
-            [sys.executable, str(sim_path)],
-            capture_output=True,
-            text=True,
-            cwd=str(SYNC_SCRIPT.parent.parent.parent),
-            env={**os.environ, "PYTHONPATH": "."},
-        )
-        if result.returncode == 0:
-            print("[sync] Monte Carlo complete.")
-            print(result.stdout)
-        else:
-            print("[sync] Monte Carlo FAILED:")
-            print(result.stderr)
-            sys.exit(1)
+if args.run_sim:
+    print("[sync] Running Monte Carlo simulation...")
+    repo_root = SYNC_SCRIPT.parent.parent.parent.parent  # worldcup26-predictor/
+    backend_dir = repo_root / "backend"
+    result = subprocess.run(
+        [
+            sys.executable, "-c",
+            "import os, sys; os.chdir('backend'); sys.path.insert(0, '..'); "
+            "exec(open('src/simulation/monte_carlo.py').read())"
+        ],
+        capture_output=True,
+        text=True,
+        cwd=str(repo_root),
+    )
+    if result.returncode == 0:
+        print("[sync] Monte Carlo complete.")
+        print(result.stdout)
+    else:
+        print("[sync] Monte Carlo FAILED:")
+        print(result.stderr)
+        sys.exit(1)
 
     print("[sync] Done.")
 

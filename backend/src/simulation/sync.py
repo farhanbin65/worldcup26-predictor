@@ -1,0 +1,277 @@
+"""
+sync.py — pull completed WC2026 results from openfootball/worldcup.json
+and rewrite results_so_far.py automatically.
+
+Usage:
+    python src/simulation/sync.py           # dry run, prints what changed
+    python src/simulation/sync.py --write   # writes results_so_far.py
+    python src/simulation/sync.py --write --run-sim  # also re-runs Monte Carlo
+
+Source: https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json
+Updated ~once/day by openfootball maintainer. No API key required.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import urllib.request
+from datetime import datetime
+from pathlib import Path
+
+os.chdir(Path(__file__).resolve().parent.parent.parent)
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
+
+URL = "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json"
+
+OUTPUT_PATH = Path(__file__).parent / "results_so_far.py"
+
+# openfootball team names → your canonical names (must match tournament_structure.GROUPS)
+NAME_MAP: dict[str, str] = {
+    "United States":           "United States",
+    "USA":                     "United States",
+    "Czechia":                 "Czechia",
+    "Czech Republic":          "Czechia",
+    "Bosnia & Herzegovina":    "Bosnia and Herzegovina",
+    "Bosnia and Herzegovina":  "Bosnia and Herzegovina",
+    "Côte d'Ivoire":           "Ivory Coast",
+    "Cote d'Ivoire":           "Ivory Coast",
+    "Ivory Coast":             "Ivory Coast",
+    "Türkiye":                 "Turkiye",
+    "Turkey":                  "Turkiye",
+    "Curaçao":                 "Curacao",
+    "Curacao":                 "Curacao",
+    "Cabo Verde":              "Cape Verde",
+    "Cape Verde":              "Cape Verde",
+    "DR Congo":                "DR Congo",
+    "South Korea":             "South Korea",
+    "Korea Republic":          "South Korea",
+    # everything else passes through unchanged
+}
+
+def canonical(name: str) -> str:
+    return NAME_MAP.get(name, name)
+
+
+# ---------------------------------------------------------------------------
+# Fetch + parse openfootball JSON
+# ---------------------------------------------------------------------------
+
+def fetch() -> dict:
+    print(f"[sync] Fetching {URL}")
+    with urllib.request.urlopen(URL, timeout=15) as r:
+        return json.loads(r.read())
+
+
+def extract_completed(data: dict) -> list[dict]:
+    """
+    Return list of completed matches as dicts.
+    openfootball structure: flat list at data["matches"]
+    score at match["score"]["ft"] = [home_goals, away_goals]
+    group at match["group"] = "Group A"
+    teams as plain strings: match["team1"], match["team2"]
+    """
+    completed = []
+
+    for match in data.get("matches", []):
+        score = match.get("score")
+        if not score:
+            continue
+
+        ft = score.get("ft")
+        if not ft or len(ft) < 2:
+            continue
+
+        # parse group letter from "Group A" → "A"
+        group_raw = match.get("group", "")
+        group_letter = group_raw.replace("Group ", "").strip()
+
+        date = match.get("date", "")[:10]
+        home = canonical(match.get("team1", ""))
+        away = canonical(match.get("team2", ""))
+
+        if not home or not away or not group_letter:
+            continue
+
+        completed.append({
+            "date": date,
+            "group": group_letter,
+            "home": home,
+            "away": away,
+            "home_score": int(ft[0]),
+            "away_score": int(ft[1]),
+        })
+
+    return completed
+
+# ---------------------------------------------------------------------------
+# Diff against existing results
+# ---------------------------------------------------------------------------
+
+def load_existing() -> set[tuple]:
+    """
+    Import results_so_far.py and return a set of (date, home, away) tuples
+    for deduplication — we never add a match already present.
+    """
+    sys.path.insert(0, str(Path(__file__).parent))
+    from results_so_far import RESULTS_SO_FAR
+    return {(r.date, r.home, r.away) for r in RESULTS_SO_FAR}
+
+
+def load_existing_ordered() -> list[dict]:
+    """Return existing results as list of dicts (preserving order)."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    # force reload in case already imported
+    import importlib
+    import results_so_far as rsf
+    importlib.reload(rsf)
+    return [
+        {
+            "date": r.date,
+            "group": r.group,
+            "home": r.home,
+            "away": r.away,
+            "home_score": r.home_score,
+            "away_score": r.away_score,
+        }
+        for r in rsf.RESULTS_SO_FAR
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Write results_so_far.py
+# ---------------------------------------------------------------------------
+
+FILE_HEADER = '''\
+"""
+WC2026 group stage results — AUTO-GENERATED by sync.py
+Source: https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json
+Last synced: {timestamp}
+
+Do not edit by hand — run sync.py to update.
+Manual override: add entries directly to RESULTS_SO_FAR below if the
+openfootball source is lagging, then re-run sync.py --write to merge.
+"""
+
+from __future__ import annotations
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class MatchResult:
+    date: str
+    group: str
+    home: str
+    away: str
+    home_score: int
+    away_score: int
+
+
+RESULTS_SO_FAR: list[MatchResult] = [
+'''
+
+FILE_FOOTER = '''\
+]
+
+
+def print_summary() -> None:
+    print(f"[results] {{len(RESULTS_SO_FAR)}} matches recorded so far")
+    by_group: dict[str, int] = {{}}
+    for r in RESULTS_SO_FAR:
+        by_group[r.group] = by_group.get(r.group, 0) + 1
+    for g in sorted(by_group):
+        print(f"  Group {{g}}: {{by_group[g]}} match(es) played")
+
+
+if __name__ == "__main__":
+    print_summary()
+'''
+
+
+def write_file(results: list[dict]) -> None:
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    lines = [FILE_HEADER.format(timestamp=timestamp)]
+
+    for r in sorted(results, key=lambda x: (x["date"], x["group"], x["home"])):
+        lines.append(
+            f'    MatchResult("{r["date"]}", "{r["group"]}", '
+            f'"{r["home"]}", "{r["away"]}", {r["home_score"]}, {r["away_score"]}),\n'
+        )
+
+    lines.append(FILE_FOOTER)
+    OUTPUT_PATH.write_text("".join(lines), encoding="utf-8")
+    print(f"[sync] Written {len(results)} results to {OUTPUT_PATH}")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Sync WC2026 results from openfootball")
+    parser.add_argument("--write", action="store_true", help="Write results_so_far.py")
+    parser.add_argument("--run-sim", action="store_true", help="Re-run Monte Carlo after writing")
+    args = parser.parse_args()
+
+    # 1. fetch
+    data = fetch()
+
+    # 2. extract completed matches
+    completed = extract_completed(data)
+    print(f"[sync] Found {len(completed)} completed matches in openfootball feed")
+
+    # 3. load existing
+    existing_keys = load_existing()
+    existing_all = load_existing_ordered()
+    print(f"[sync] {len(existing_all)} matches already in results_so_far.py")
+
+    # 4. find new ones
+    new_matches = [
+        m for m in completed
+        if (m["date"], m["home"], m["away"]) not in existing_keys
+    ]
+
+    if not new_matches:
+        print("[sync] No new completed matches found. Nothing to update.")
+        return
+
+    print(f"[sync] {len(new_matches)} new match(es) to add:")
+    for m in new_matches:
+        print(f"       {m['date']} Group {m['group']}: {m['home']} {m['home_score']}–{m['away_score']} {m['away']}")
+
+    if not args.write:
+        print("[sync] Dry run — pass --write to update results_so_far.py")
+        return
+
+    # 5. merge and write
+    merged = existing_all + new_matches
+    write_file(merged)
+
+    # 6. optionally re-run Monte Carlo
+    if args.run_sim:
+        sim_path = Path(__file__).parent / "monte_carlo.py"
+        print(f"[sync] Running Monte Carlo simulation...")
+        result = subprocess.run(
+            [sys.executable, str(sim_path)],
+            capture_output=True,
+            text=True,
+            cwd=str(SYNC_SCRIPT.parent.parent.parent),
+            env={**os.environ, "PYTHONPATH": "."},
+        )
+        if result.returncode == 0:
+            print("[sync] Monte Carlo complete.")
+            print(result.stdout)
+        else:
+            print("[sync] Monte Carlo FAILED:")
+            print(result.stderr)
+            sys.exit(1)
+
+    print("[sync] Done.")
+
+
+if __name__ == "__main__":
+    main()

@@ -8,11 +8,15 @@ and knockout simulation through to a champion.
 """
 
 from __future__ import annotations
+import os
 import time
 import numpy as np
 import json
 from pathlib import Path
 from collections import Counter, defaultdict
+
+# fix working directory so data paths resolve correctly regardless of call location
+os.chdir(Path(__file__).resolve().parent.parent.parent)
 
 from backend.src.simulation.tournament_simulator import (
     simulate_group_stage, select_best_third_place,

@@ -2,8 +2,8 @@ name: Sync WC2026 results
 
 on:
   schedule:
-    - cron: '0 */3 * * *'   # every 3 hours
-  workflow_dispatch:          # also allows manual trigger from GitHub UI
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -14,5 +14,7 @@ jobs:
         curl -X POST \
           "https://worldcup26-predictor.onrender.com/admin/sync?run_sim=true" \
           -H "X-Sync-Secret: ${{ secrets.SYNC_SECRET }}" \
-          --fail --silent --show-error
-        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          -H "Content-Type: application/json" \
+          --fail-with-body \
+          --show-error \
+          -v

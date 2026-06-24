@@ -158,6 +158,7 @@ export default function PredictPage() {
 
   async function handlePredict() {
     if (!homeTeam || !awayTeam) { setError("Select both teams."); return; }
+    
     if (homeTeam === awayTeam) { setError("Home and away teams must be different."); return; }
     setLoading(true); setError(null); setResult(null);
     try {

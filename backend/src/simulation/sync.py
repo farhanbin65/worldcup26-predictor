@@ -312,7 +312,7 @@ def main() -> None:
     # 6. optionally re-run Monte Carlo
     if args.run_sim:
         print("[sync] Running Monte Carlo simulation...")
-        repo_root = SYNC_SCRIPT.parent.parent.parent.parent
+        repo_root = Path(__file__).resolve().parent.parent.parent.parent
         result = subprocess.run(
             [
                 sys.executable, "-c",
